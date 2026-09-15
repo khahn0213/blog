@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firestore로 블로그 조회수를 비싸지 않게 세는 방법 — 기록 창고</title>
+<meta name="description" content="조회수는 블로그에서 제일 단순해 보이는 기능인데, 그대로 구현하면 문서 쓰기 비용이 방문자 수만큼 늘어납니다.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header style="position:relative;min-height:440px;background-image:repeating-linear-gradient(135deg,#15181C 0 10px,#0B0D10 10px 20px);display:flex;align-items:flex-end">
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.8) 100%)"></div>
+
+  <div style="position:absolute;top:18px;left:0;right:0">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;color:#FFFFFF">
+      <a class="logo" href="index.html">기록 창고</a>
+    </div>
+  </div>
+
+  <div class="container" style="position:relative;padding-bottom:56px;color:#FFFFFF">
+    <span id="post-cat-badge" style="display:inline-block;padding:6px 14px;border-radius:100px;background:rgba(255,255,255,.16);font-size:12px;font-weight:600;margin-bottom:18px">개발</span>
+    <h1 id="post-title" class="heading-font" style="font-size:44px;line-height:1.28;font-weight:700;max-width:22em;color:#FFFFFF">
+      Firestore로 블로그 조회수를<br>비싸지 않게 세는 방법
+    </h1>
+    <p id="post-meta" style="margin:18px 0 0;font-size:14px;color:rgba(255,255,255,.6)">2026년 9월 12일 · 12분 읽기 · 조회 1,284</p>
+  </div>
+</header>
+
+<main style="padding:64px 24px 88px">
+  <div class="container" style="padding:0;display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:56px;align-items:start">
+
+    <article style="max-width:720px;font-size:17px;line-height:1.8;color:var(--text)">
+      <div id="post-dynamic-sections">
+      <p style="margin:0 0 28px;font-size:19px;line-height:1.75;color:var(--text-muted)">
+        조회수는 블로그에서 제일 단순해 보이는 기능인데, 그대로 구현하면 문서 쓰기 비용이 방문자 수만큼 늘어납니다. 며칠 굴려보며 정리한 방법을 남깁니다.
+      </p>
+
+      <h2 id="sec-1" class="heading-font" style="margin:44px 0 16px;font-size:27px;font-weight:700">문제는 쓰기 횟수였다</h2>
+      <p style="margin:0 0 22px">
+        페이지가 열릴 때마다 게시글 문서의 <code>views</code> 필드를 1 증가시키는 방식은 구현이 가장 쉽습니다. 다만 같은 문서에 초당 한 번 이상 쓰기가 몰리면 경합이 생기고, 트래픽이 조금만 늘어도 쓰기 과금이 읽기 과금을 앞지릅니다.
+      </p>
+      <div style="margin:0 0 22px;padding:20px 22px;background:var(--bg-soft);border-radius:16px;font-size:15px;line-height:1.7;color:var(--text-muted)">
+        한 문서에 대한 쓰기는 초당 1회가 권장 한계입니다. 인기 글 하나가 이 한계를 넘기면 나머지 요청이 줄을 서기 시작합니다.
+      </div>
+
+      <h2 id="sec-2" class="heading-font" style="margin:44px 0 16px;font-size:27px;font-weight:700">분산 카운터와 배치 집계</h2>
+      <p style="margin:0 0 22px">해결책은 두 단계로 나눕니다. 방문 시점에는 이벤트만 얕게 적고, 집계는 하루 한 번 몰아서 합니다.</p>
+      <div style="margin:0 0 24px;padding:20px;background:var(--code-bg);border-radius:16px;overflow:auto">
+<pre style="margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13.5px;line-height:1.7;color:#E5E8EB">const shard = Math.floor(Math.random() * 10);
+await setDoc(
+  doc(db, `posts/${slug}/shards/${shard}`),
+  { count: increment(1) },
+  { merge: true }
+);</pre>
+      </div>
+      <p style="margin:0 0 22px">
+        샤드를 10개로 쪼개면 같은 문서에 몰리던 쓰기가 나뉘고, 조회 화면에서는 샤드 합계를 한 번만 읽어 캐시합니다. 실제 지표 분석은 GA4 쪽에 맡기고 Firestore에는 표시용 숫자만 두는 편이 비용과 복잡도 모두 낮았습니다.
+      </p>
+
+      <h2 id="sec-3" class="heading-font" style="margin:44px 0 16px;font-size:27px;font-weight:700">남은 과제</h2>
+      <p style="margin:0 0 22px">
+        지금은 샤드 합계를 방문할 때마다 다시 읽고 있는데, 인기 글 상세는 5분 캐시를 둬서 읽기도 더 줄일 수 있을 것 같습니다. 다음 글에서 이어서 정리하겠습니다.
+      </p>
+
+            </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:40px 0 0">
+        <span class="tag">#firestore</span>
+        <span class="tag">#analytics</span>
+        <span class="tag">#비용최적화</span>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 48px">
+        <button class="btn btn-primary" type="button">구독하기</button>
+        <button class="btn btn-chip" type="button" id="copy-link">링크 복사</button>
+      </div>
+
+      <nav style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px" aria-label="이전글 다음글">
+        <a class="card" style="padding:22px;color:inherit" href="#">
+          <p style="margin:0 0 8px;font-size:12px;color:var(--text-faint);font-weight:600">이전 글</p>
+          <p style="margin:0;font-size:16px;font-weight:700;line-height:1.5">Vercel 프리뷰 배포를 PR 리뷰에 붙이기</p>
+        </a>
+        <a class="card" style="padding:22px;color:inherit;text-align:right" href="#">
+          <p style="margin:0 0 8px;font-size:12px;color:var(--text-faint);font-weight:600">다음 글</p>
+          <p style="margin:0;font-size:16px;font-weight:700;line-height:1.5">GA4 Data API 호출을 하루 한 번으로 줄이기</p>
+        </a>
+      </nav>
+    </article>
+
+    <aside style="position:sticky;top:76px">
+      <p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--text-faint)">목차</p>
+      <nav style="display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.5">
+        <a href="#sec-1" style="color:var(--brand);font-weight:600;border-left:2px solid var(--brand);padding-left:12px">문제는 쓰기 횟수였다</a>
+        <a href="#sec-2" style="color:var(--text-faint);border-left:2px solid var(--bg-chip);padding-left:12px">분산 카운터와 배치 집계</a>
+        <a href="#sec-3" style="color:var(--text-faint);border-left:2px solid var(--bg-chip);padding-left:12px">남은 과제</a>
+      </nav>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <span>© 2026 기록 창고</span>
+    <div class="social">
+      <a href="#">GitHub</a><a href="#">X</a><a href="#">RSS</a>
+    </div>
+  </div>
+</footer>
+
+<button class="fab" type="button" data-fab-top aria-label="맨 위로">↑</button>
+<script src="assets/main.js"></script>
+<script type="module" src="assets/posts-detail.js"></script>
+<script>
+  const copyBtn = document.getElementById('copy-link');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        copyBtn.textContent = '복사됨';
+        setTimeout(() => { copyBtn.textContent = '링크 복사'; }, 1500);
+      } catch (e) { /* 클립보드 권한이 없는 환경은 조용히 무시 */ }
+    });
+  }
+</script>
+</body>
+</html>

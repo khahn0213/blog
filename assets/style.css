@@ -1,0 +1,92 @@
+/* 기록 창고 — 공용 스타일 (tossplace.com 레퍼런스 기반, DESIGN.md 참고) */
+
+@font-face{font-family:'GMarketSansBold';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
+
+:root{
+  --text:#333D4B;
+  --text-muted:#4E5968;
+  --text-faint:#8B95A1;
+  --bg-page:#FFFFFF;
+  --bg-soft:#F6F7F9;
+  --bg-chip:#F2F4F6;
+  --bg-blue-tint:#F2F8FF;
+  --bg-amber-tint:#FFF6E6;
+  --amber:#A15C00;
+  --brand:#3182F6;
+  --brand-dark:#1B64DA;
+  --navy:#333D4B;
+  --black:#000000;
+  --code-bg:#0B0D10;
+  --shadow-card:0 2px 30px rgba(0,27,55,.1);
+  --shadow-card-hover:0 8px 40px rgba(0,27,55,.16);
+  --shadow-soft:0 1px 3px rgba(0,27,55,.06);
+  --shadow-fab:0 4px 24px rgba(0,27,55,.2);
+  --radius-lg:16px;
+  --radius-md:10px;
+  --radius-pill:100px;
+  --max-width:1100px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg-page);
+  color:var(--text);
+  font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--brand);text-decoration:none}
+a:hover{color:var(--brand-dark)}
+img{max-width:100%;display:block}
+h1,h2,h3,p{margin:0}
+.heading-font{font-family:'GMarketSansBold','Pretendard',sans-serif;letter-spacing:-0.01em}
+
+.container{max-width:var(--max-width);margin:0 auto;padding:0 24px}
+
+/* 헤더 (다크) */
+.site-header{background:var(--black);color:#FFFFFF}
+.site-header .nav-row{display:flex;align-items:center;justify-content:space-between;padding:20px 24px}
+.logo{font-family:'GMarketSansBold','Pretendard',sans-serif;font-size:19px;letter-spacing:-0.01em;color:#FFFFFF}
+.nav-links{display:flex;align-items:center;gap:20px;font-size:14px;color:rgba(255,255,255,.72)}
+.nav-links a{color:inherit}
+.nav-links a:hover{color:#FFFFFF}
+.search-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--radius-pill);background:rgba(255,255,255,.12);font-size:13px;border:0;color:#FFFFFF;cursor:pointer}
+
+/* 버튼 */
+.btn{border:0;border-radius:var(--radius-pill);font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .2s;padding:15px 26px;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--brand);color:#FFFFFF}
+.btn-primary:hover{background:var(--brand-dark)}
+.btn-ghost-dark{background:rgba(255,255,255,.12);color:#FFFFFF}
+.btn-ghost-dark:hover{background:rgba(255,255,255,.2)}
+.btn-light{background:#FFFFFF;color:var(--text);box-shadow:var(--shadow-card)}
+.btn-light:hover{color:var(--brand)}
+.btn-chip{background:var(--bg-chip);color:var(--text-muted)}
+.btn-chip:hover{background:#E8EBEE}
+.btn-sm{padding:10px 18px;font-size:13px}
+
+/* 칩/태그 */
+.chip{display:inline-flex;align-items:center;padding:9px 16px;border-radius:var(--radius-pill);background:#FFFFFF;color:var(--text-muted);font-size:13px;font-weight:600;border:0;cursor:pointer}
+.chip-active{background:var(--brand);color:#FFFFFF}
+.tag{display:inline-flex;padding:9px 16px;border-radius:var(--radius-pill);background:var(--bg-chip);color:var(--text-muted);font-size:13px;font-weight:600}
+.cat-badge{align-self:flex-start;padding:5px 12px;border-radius:var(--radius-pill);background:var(--bg-chip);color:var(--text-muted);font-size:12px;font-weight:600}
+
+/* 카드 */
+.card{background:#FFFFFF;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);transition:all .2s}
+.card-hover:hover{box-shadow:var(--shadow-card-hover);transform:translateY(-2px)}
+.thumb-placeholder{height:160px;background-image:repeating-linear-gradient(135deg,#EEF1F5 0 8px,#F6F7F9 8px 16px);display:flex;align-items:center;justify-content:center;border-radius:var(--radius-lg) var(--radius-lg) 0 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--text-faint)}
+
+/* 푸터 */
+.site-footer{background:var(--navy);color:rgba(255,255,255,.72);padding:48px 24px}
+.site-footer .container{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-size:14px}
+.site-footer a{color:inherit}
+.site-footer .social{display:flex;gap:18px}
+
+/* 플로팅 버튼 */
+.fab{position:fixed;right:24px;bottom:24px;z-index:60;width:52px;height:52px;border:0;border-radius:var(--radius-pill);background:#FFFFFF;color:var(--navy);font-size:17px;box-shadow:var(--shadow-fab);cursor:pointer;transition:all .2s;opacity:0;pointer-events:none;transform:translateY(8px)}
+.fab.is-visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+.fab:hover{color:var(--brand);transform:translateY(-2px)}
+
+/* 유틸 */
+.section-soft{background:var(--bg-soft)}
+.grid-posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
