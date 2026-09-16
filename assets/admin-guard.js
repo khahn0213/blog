@@ -4,7 +4,7 @@ import { auth, isFirebaseConfigured } from "./firebase.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 function loginPath() {
-  return window.location.pathname.includes("/admin/posts/") ? "../login.html" : "login.html";
+  return window.location.pathname.includes("/am/posts/") ? "../login.html" : "login.html";
 }
 
 if (isFirebaseConfigured && auth) {
